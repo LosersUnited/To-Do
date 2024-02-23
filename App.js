@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {StatusBar} from 'expo-status-bar';
-import {StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native';
+import {StyleSheet, Text, TextInput, TouchableOpacity, View, ScrollView} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import {Platform, scheduleNotificationAsync} from 'expo-notifications';
@@ -92,49 +92,54 @@ export default function App() {
   });
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>To-Do App</Text>
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Add a new to-do"
-          value={newTodo}
-          onChangeText={(text) => setNewTodo(text)}
-        />
+      <View style={styles.container}>
+        <Text style={styles.title}>To-Do App</Text>
+        <View style={styles.inputContainer}>
+          <DateTimePicker
+              testID="dateTimePicker"
+              value={date}
+              mode="datetime"
+              is24Hour={true}
+              display="default"
+              onChange={onDateChange}
+              themeVariant="dark"
+              style={{ color: '#fff' }} // this doesn't work :((
+              // ill figure it out
+          />
+          <TouchableOpacity style={styles.addButton} onPress={addTodo}>
+            <Text style={styles.buttonText}>Add</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.inputContainer}>
+          <TextInput
+              style={styles.input}
+              placeholder="Add a new to-do" // this doesn't work anyway.
+              value={newTodo}
+              onChangeText={(text) => setNewTodo(text)}
+          />
+        </View>
+        <ScrollView style={styles.scrollView}>
+          <View style={styles.todoList}>
+            {todos.length === 0 ? (
+                <Text style={styles.todoText}>No todos available</Text>
+            ) : (
+                todos.map((todo, index) => (
+                    <View key={index} style={styles.todoItem}>
+                      <Text style={[hasTimestampPassed(todo.reminder) ? styles.passedReminderText : styles.todoText]}>
+                        {todo.text} - {formatDateTime(todo.reminder)}
+                      </Text>
+                      <TouchableOpacity onPress={() => removeTodo(index)}>
+                        <Text style={styles.removeButton}>Remove</Text>
+                      </TouchableOpacity>
+                    </View>
+                ))
+            )}
+          </View>
+        </ScrollView>
+        <StatusBar style="auto" />
       </View>
-      <View style={styles.inputContainer}>
-        <DateTimePicker
-            testID="dateTimePicker"
-            value={date}
-            mode="datetime"
-            is24Hour={true}
-            display="default"
-            onChange={onDateChange}
-            style={{ color: '#fff' }} // this doesn't work :((
-        />
-        <TouchableOpacity style={styles.addButton} onPress={addTodo}>
-          <Text style={styles.buttonText}>Add</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.todoList}>
-        {todos.length === 0 ? (
-            <Text style={styles.todoText}>No todos available</Text>
-        ) : (
-            todos.map((todo, index) => (
-                <View key={index} style={styles.todoItem}>
-                  <Text style={[hasTimestampPassed(todo.reminder) ? styles.passedReminderText : styles.todoText]}>
-                    {todo.text} - {formatDateTime(todo.reminder)}
-                  </Text>
-                  <TouchableOpacity onPress={() => removeTodo(index)}>
-                    <Text style={styles.removeButton}>Remove</Text>
-                  </TouchableOpacity>
-                </View>
-            ))
-        )}
-      </View>
-      <StatusBar style="auto" />
-    </View>
   );
+
 }
 
 const styles = StyleSheet.create({
@@ -150,10 +155,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#fff',
     marginBottom: 16,
+    marginTop: 30,
   },
   inputContainer: {
     flexDirection: 'row',
     marginBottom: 16,
+    marginTop: 30,
   },
   passedReminderText: {
     color: '#8F8',
@@ -194,5 +201,9 @@ const styles = StyleSheet.create({
   },
   removeButton: {
     color: '#FF4500',
+  },
+  scrollView: {
+    flex: 1,
+    width: '100%',
   },
 });
