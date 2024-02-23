@@ -87,7 +87,7 @@ export default function App() {
     handleNotification: async () => ({
       shouldShowAlert: true,
       shouldPlaySound: true,
-      shouldSetBadge: false,
+      shouldSetBadge: true,
     }),
   });
 
@@ -101,6 +101,8 @@ export default function App() {
           value={newTodo}
           onChangeText={(text) => setNewTodo(text)}
         />
+      </View>
+      <View style={styles.inputContainer}>
         <DateTimePicker
             testID="dateTimePicker"
             value={date}
@@ -108,7 +110,7 @@ export default function App() {
             is24Hour={true}
             display="default"
             onChange={onDateChange}
-            style={{ color: '#fff' }}
+            style={{ color: '#fff' }} // this doesn't work :((
         />
         <TouchableOpacity style={styles.addButton} onPress={addTodo}>
           <Text style={styles.buttonText}>Add</Text>
