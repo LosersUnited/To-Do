@@ -1,15 +1,81 @@
-import React, {useEffect, useState} from 'react';
-import {StatusBar} from 'expo-status-bar';
-import {StyleSheet, Text, TextInput, TouchableOpacity, View, ScrollView} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StatusBar } from 'expo-status-bar';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
-import {Platform, scheduleNotificationAsync} from 'expo-notifications';
+import { scheduleNotificationAsync } from 'expo-notifications';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { Platform } from 'react-native';
+
+const CrossPlatformDateTimePickerAIO = (props) => {
+  const [date, setDate] = useState(undefined);
+  const [time, setTime] = useState(undefined);
+
+  const handleDateChange = (event, selectedDate) => {
+    console.log(date);
+    if (date != undefined)
+      return;
+    const currentDate = selectedDate || date;
+    setDate(currentDate);
+    console.log("n", currentDate, time);
+    // if (Platform.OS === 'ios') {
+    //   props.onChange(currentDate);
+    // } else
+    // {
+    const combinedDateTime = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      currentDate.getDate(),
+      time.getHours(),
+      time.getMinutes()
+    );
+    props.onChange(event, combinedDateTime);
+    // }
+  };
+
+  const handleTimeChange = (event, selectedTime) => {
+    if (time != undefined)
+      return;
+    console.log("t", selectedTime, time);
+    const currentTime = selectedTime || time;
+    setTime(currentTime);
+    console.log("u", currentTime, time);
+    // if (Platform.OS === 'ios') {
+    //   props.onChange(currentTime);
+    // }
+  };
+
+  const showDateTimePicker = (
+    <DateTimePicker
+      {...props}
+      mode="datetime"
+    />
+  );
+
+  const showDatePicker = (
+    <DateTimePicker
+      {...props}
+      onChange={handleDateChange}
+      mode="date"
+    />
+  );
+
+  const showTimePicker = (
+    <DateTimePicker
+      {...props}
+      onChange={handleTimeChange}
+      mode="time"
+    />
+  );
+
+  return Platform.OS === 'ios' ? showDateTimePicker : <View>{time == undefined ? showTimePicker : showDatePicker}</View>;
+};
 
 export default function App() {
   const [todos, setTodos] = useState([]);
   const [newTodo, setNewTodo] = useState('');
   const [date, setDate] = useState(new Date());
+  const [show, setShow] = useState(false);
 
   useEffect(() => {
     loadTodos();
@@ -60,18 +126,24 @@ export default function App() {
     const options = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
     return new Date(dateTimeString).toLocaleTimeString(navigator.language, options);
   }
-  
+
   function hasTimestampPassed(timestamp_str) {
     const timestamp = new Date(timestamp_str);
     const currentDate = new Date();
     return currentDate > timestamp;
   }
-  
+
   const onDateChange = (event, selectedDate) => {
+    if (event?.type === 'dismissed') {
+      setShow(false);
+      setDate(date);
+      return;
+    }
     const currentDate = selectedDate || date;
+    setShow(false);
     setDate(currentDate);
   };
-  
+
   const scheduleNotification = async (todo) => {
     console.log(date.getSeconds())
     await scheduleNotificationAsync({
@@ -90,54 +162,61 @@ export default function App() {
       shouldSetBadge: true,
     }),
   });
-
+  console.log(show);
   return (
-      <View style={styles.container}>
-        <Text style={styles.title}>To-Do App</Text>
-        <View style={styles.inputContainer}>
-          <DateTimePicker
-              testID="dateTimePicker"
-              value={date}
-              mode="datetime"
-              is24Hour={true}
-              display="default"
-              onChange={onDateChange}
-              themeVariant="dark"
-              style={{ color: '#fff' }} // this doesn't work :((
-              // ill figure it out
-          />
-          <TouchableOpacity style={styles.addButton} onPress={addTodo}>
-            <Text style={styles.buttonText}>Add</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.inputContainer}>
-          <TextInput
-              style={styles.input}
-              placeholder="Add a new to-do" // this doesn't work anyway.
-              value={newTodo}
-              onChangeText={(text) => setNewTodo(text)}
-          />
-        </View>
-        <ScrollView style={styles.scrollView}>
-          <View style={styles.todoList}>
-            {todos.length === 0 ? (
-                <Text style={styles.todoText}>No todos available</Text>
-            ) : (
-                todos.map((todo, index) => (
-                    <View key={index} style={styles.todoItem}>
-                      <Text style={[hasTimestampPassed(todo.reminder) ? styles.passedReminderText : styles.todoText]}>
-                        {todo.text} - {formatDateTime(todo.reminder)}
-                      </Text>
-                      <TouchableOpacity onPress={() => removeTodo(index)}>
-                        <Text style={styles.removeButton}>Remove</Text>
-                      </TouchableOpacity>
-                    </View>
-                ))
-            )}
-          </View>
-        </ScrollView>
-        <StatusBar style="auto" />
+    <View style={styles.container}>
+      <Text style={styles.title}>To-Do App</Text>
+      <View style={styles.inputContainer}>
+        {!DateTimePicker.toString().includes("DateTimePicker is not supported on:") ? <TouchableOpacity style={styles.addButton} onPress={() => setShow(true)}>
+          <Text style={styles.buttonText}>{date.toString()}</Text>
+        </TouchableOpacity> : <div></div>}
+        {!DateTimePicker.toString().includes("DateTimePicker is not supported on:") ?
+          (show ? <CrossPlatformDateTimePickerAIO
+            testID="dateTimePicker"
+            value={date}
+            mode="datetime"
+            is24Hour={true}
+            display="default"
+            onChange={onDateChange}
+            onError={console.log}
+            onDim
+            themeVariant="dark"
+            style={{ color: '#fff' }} // this doesn't work :((
+          // ill figure it out
+          /> : undefined)
+          : <input type="datetime-local" value={date.toISOString().slice(0, 16)} onChange={(ev) => onDateChange(ev, new Date(ev.target.valueAsNumber))}></input>}
+        <TouchableOpacity style={styles.addButton} onPress={addTodo}>
+          <Text style={styles.buttonText}>Add</Text>
+        </TouchableOpacity>
       </View>
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Add a new to-do" // this doesn't work anyway.
+          value={newTodo}
+          onChangeText={(text) => setNewTodo(text)}
+        />
+      </View>
+      <ScrollView style={styles.scrollView}>
+        <View style={styles.todoList}>
+          {todos.length === 0 ? (
+            <Text style={styles.todoText}>No todos available</Text>
+          ) : (
+            todos.map((todo, index) => (
+              <View key={index} style={styles.todoItem}>
+                <Text style={[hasTimestampPassed(todo.reminder) ? styles.passedReminderText : styles.todoText]}>
+                  {todo.text} - {formatDateTime(todo.reminder)}
+                </Text>
+                <TouchableOpacity onPress={() => removeTodo(index)}>
+                  <Text style={styles.removeButton}>Remove</Text>
+                </TouchableOpacity>
+              </View>
+            ))
+          )}
+        </View>
+      </ScrollView>
+      <StatusBar style="auto" />
+    </View>
   );
 
 }
