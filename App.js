@@ -12,7 +12,7 @@ const CrossPlatformDateTimePickerAIO = (props) => {
   const [time, setTime] = useState(undefined);
 
   const handleDateChange = (event, selectedDate) => {
-    if (date != undefined)
+    if (date !== undefined)
       return;
     const currentDate = selectedDate || date;
     setDate(currentDate);
@@ -32,7 +32,7 @@ const CrossPlatformDateTimePickerAIO = (props) => {
   };
 
   const handleTimeChange = (event, selectedTime) => {
-    if (time != undefined)
+    if (time !== undefined)
       return;
     const currentTime = selectedTime || time;
     setTime(currentTime);
@@ -64,7 +64,7 @@ const CrossPlatformDateTimePickerAIO = (props) => {
     />
   );
 
-  return Platform.OS === 'ios' ? showDateTimePicker : <View>{time == undefined ? showTimePicker : showDatePicker}</View>;
+  return Platform.OS === 'ios' ? showDateTimePicker : <View>{time === undefined ? showTimePicker : showDatePicker}</View>;
 };
 
 export default function App() {
@@ -162,11 +162,11 @@ export default function App() {
     <View style={styles.container}>
       <Text style={styles.title}>To-Do App</Text>
       <View style={styles.inputContainer}>
-        {!DateTimePicker.toString().includes("DateTimePicker is not supported on:") && Platform.OS == "android" ? <TouchableOpacity style={styles.addButton} onPress={() => setShow(true)}>
+        {!DateTimePicker.toString().includes("DateTimePicker is not supported on:") && Platform.OS === "android" ? <TouchableOpacity style={styles.addButton} onPress={() => setShow(true)}>
           <Text style={styles.buttonText}>{date.toString()}</Text>
         </TouchableOpacity> : undefined}
         {!DateTimePicker.toString().includes("DateTimePicker is not supported on:") ?
-          (show || Platform.OS == "ios" ? <CrossPlatformDateTimePickerAIO
+          (show || Platform.OS === "ios" ? <CrossPlatformDateTimePickerAIO
             testID="dateTimePicker"
             value={date}
             mode="datetime"
