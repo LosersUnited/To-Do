@@ -169,7 +169,7 @@ export default function App() {
       <View style={styles.inputContainer}>
         {!DateTimePicker.toString().includes("DateTimePicker is not supported on:") ? <TouchableOpacity style={styles.addButton} onPress={() => setShow(true)}>
           <Text style={styles.buttonText}>{date.toString()}</Text>
-        </TouchableOpacity> : <div></div>}
+        </TouchableOpacity> : undefined}
         {!DateTimePicker.toString().includes("DateTimePicker is not supported on:") ?
           (show ? <CrossPlatformDateTimePickerAIO
             testID="dateTimePicker"
