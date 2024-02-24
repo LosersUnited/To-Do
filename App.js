@@ -12,12 +12,10 @@ const CrossPlatformDateTimePickerAIO = (props) => {
   const [time, setTime] = useState(undefined);
 
   const handleDateChange = (event, selectedDate) => {
-    console.log(date);
     if (date != undefined)
       return;
     const currentDate = selectedDate || date;
     setDate(currentDate);
-    console.log("n", currentDate, time);
     // if (Platform.OS === 'ios') {
     //   props.onChange(currentDate);
     // } else
@@ -36,10 +34,8 @@ const CrossPlatformDateTimePickerAIO = (props) => {
   const handleTimeChange = (event, selectedTime) => {
     if (time != undefined)
       return;
-    console.log("t", selectedTime, time);
     const currentTime = selectedTime || time;
     setTime(currentTime);
-    console.log("u", currentTime, time);
     // if (Platform.OS === 'ios') {
     //   props.onChange(currentTime);
     // }
@@ -162,7 +158,6 @@ export default function App() {
       shouldSetBadge: true,
     }),
   });
-  console.log(show);
   return (
     <View style={styles.container}>
       <Text style={styles.title}>To-Do App</Text>
@@ -178,7 +173,6 @@ export default function App() {
             is24Hour={true}
             display="default"
             onChange={onDateChange}
-            onError={console.log}
             onDim
             themeVariant="dark"
             style={{ color: '#fff' }} // this doesn't work :((
