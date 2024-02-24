@@ -167,11 +167,11 @@ export default function App() {
     <View style={styles.container}>
       <Text style={styles.title}>To-Do App</Text>
       <View style={styles.inputContainer}>
-        {!DateTimePicker.toString().includes("DateTimePicker is not supported on:") ? <TouchableOpacity style={styles.addButton} onPress={() => setShow(true)}>
+        {!DateTimePicker.toString().includes("DateTimePicker is not supported on:") && Platform.OS == "android" ? <TouchableOpacity style={styles.addButton} onPress={() => setShow(true)}>
           <Text style={styles.buttonText}>{date.toString()}</Text>
         </TouchableOpacity> : undefined}
         {!DateTimePicker.toString().includes("DateTimePicker is not supported on:") ?
-          (show ? <CrossPlatformDateTimePickerAIO
+          (show || Platform.OS == "ios" ? <CrossPlatformDateTimePickerAIO
             testID="dateTimePicker"
             value={date}
             mode="datetime"
