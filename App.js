@@ -173,6 +173,7 @@ export default function App() {
             is24Hour={true}
             display="default"
             onChange={onDateChange}
+            onError={console.error}
             onDim
             themeVariant="dark"
             style={{ color: '#fff' }} // this doesn't work :((
